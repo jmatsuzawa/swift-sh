@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-sh}",
+            "name": "Debug swift-sh",
+            "program": "${workspaceFolder:swift-sh}/.build/debug/swift-sh",
+            "preLaunchTask": "swift: Build Debug swift-sh"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:swift-sh}",
+            "name": "Release swift-sh",
+            "program": "${workspaceFolder:swift-sh}/.build/release/swift-sh",
+            "preLaunchTask": "swift: Build Release swift-sh"
+        }
+    ]
+}
