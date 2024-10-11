@@ -35,9 +35,10 @@ func tokenize(_ line: String) -> [String] {
     return tokens
 }
 
-enum ShellError: Error {
+enum ShellError: Error, Equatable {
     case syntaxError
-    case commandNotFound
+    case commandNotFound(String)
+    case fileError(String, String)
 }
 
 enum Element: Equatable {
@@ -130,7 +131,7 @@ func absolutePath(of command: String, in paths: [String]) throws -> String {
             return fullPath
         }
     }
-    throw ShellError.commandNotFound
+    throw ShellError.commandNotFound(command)
 }
 
 func createProcess(_ command: String, _ args: [String]) -> Process {
@@ -168,7 +169,7 @@ func run(_ elements: [Element]) throws {
                 let fileHandle = try FileHandle(forReadingFrom: URL(fileURLWithPath: path))
                 currentCommand.standardInput = fileHandle
             } catch {
-                fputs("Could not open \(path). error: \(error)\n", stderr)
+                throw ShellError.fileError(path, error.localizedDescription)
             }
         case .redirectOut(let path):
             // cspell:disable-next
@@ -203,8 +204,10 @@ func repl() {
             try run(elements)
         } catch ShellError.syntaxError{
             fputs("Error: Syntax error\n", stderr)
-        } catch ShellError.commandNotFound {
-            fputs("Error: Command not found\n", stderr)
+        } catch let ShellError.commandNotFound(command) {
+            fputs("Error: Command not found: \(command)\n", stderr)
+        } catch let ShellError.fileError(path, description) {
+            fputs("Error: Could not open \(path): \(description)\n", stderr)
         } catch {
             fputs("Error: \(error)\n", stderr)
         }
