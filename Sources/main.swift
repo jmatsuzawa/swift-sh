@@ -171,12 +171,10 @@ func run(_ elements: [Element]) throws {
                 fputs("Could not open \(path). error: \(error)\n", stderr)
             }
         case .redirectOut(let path):
-            do {
-                // cspell:disable-next
-                let fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
-                let fileHandle = FileHandle(fileDescriptor: fd)
-                currentCommand.standardOutput = fileHandle
-            }
+            // cspell:disable-next
+            let fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)
+            let fileHandle = FileHandle(fileDescriptor: fd)
+            currentCommand.standardOutput = fileHandle
         }
         i += 1
     }
