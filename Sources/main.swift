@@ -165,6 +165,11 @@ func runCd(_ args: [String]) throws {
     if !FileManager.default.changeCurrentDirectoryPath(path) {
         throw ShellError.fileError(path, "Could not change directory to \(path)")
     }
+
+    // if not setenv PATH, `cd /tmp; pwd` prints /private/tmp on macOS
+    if setenv("PWD", path, 1) < 0 {
+        throw ShellError.fileError(path, "Could not set PWD environment variable")
+    }
 }
 
 func runExit(_ args: [String]) {
