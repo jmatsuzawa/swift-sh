@@ -1,0 +1,29 @@
+name: Swift CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Swift
+      uses: jmatsuzawa/setup-swift@736b146b8f26e7a66cbe3a89bc8d413ac0ea536e
+      with:
+        swift-version: '6.0' # Specify the Swift version you are using
+
+    - name: Build
+      run: swift build
+
+    - name: Run tests
+      run: swift test
+
+    - name: Run E2E tests
+      run: ./E2ETests/e2eTest.sh
