@@ -6,10 +6,11 @@ import PackageDescription
 let package = Package(
     name: "swift-sh",
     platforms: [
-        .macOS(.v10_15),
+        .macOS(.v10_15)
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-testing.git", revision: "swift-6.0.1-RELEASE"),
+        .package(
+            url: "https://github.com/swiftlang/swift-testing.git", revision: "swift-6.0.1-RELEASE")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

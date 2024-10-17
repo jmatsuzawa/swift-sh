@@ -19,7 +19,7 @@ func tokenize(_ line: String) -> [String] {
     var prevStr = ""
 
     for c in line {
-        if c.isWhitespace || c ==  "|" || c == "<" || c == ">" {
+        if c.isWhitespace || c == "|" || c == "<" || c == ">" {
             if prevStr != "" {
                 tokens.append(prevStr)
                 prevStr = ""
@@ -72,12 +72,12 @@ func parseTokens(_ tokens: [String]) throws -> [Element] {
         let token = tokens[i]
         i += 1
 
-        if (token == "|" || token == "<" || token == ">") {
+        if token == "|" || token == "<" || token == ">" {
             if i >= tokens.count {
                 throw ShellError.syntaxError
             }
             let nextToken = tokens[i]
-            if (nextToken == "|" || nextToken == "<" || nextToken == ">") {
+            if nextToken == "|" || nextToken == "<" || nextToken == ">" {
                 throw ShellError.syntaxError
             }
 
@@ -184,12 +184,13 @@ func runBuildInCommand(_ command: String, _ args: [String]) throws {
     case "exit":
         runExit(args)
     default:
-        break // Do nothing
+        break  // Do nothing
     }
 }
 
 func run(_ elements: [Element]) throws {
-    let paths = (ProcessInfo.processInfo.environment["PATH"] ?? "").split(separator: ":").map(String.init)
+    let paths =
+        (ProcessInfo.processInfo.environment["PATH"] ?? "").split(separator: ":").map(String.init)
 
     var commands: [Process] = []
     var currentCommand: Process = Process()
@@ -253,7 +254,7 @@ func repl() {
                 continue
             }
             try run(elements)
-        } catch ShellError.syntaxError{
+        } catch ShellError.syntaxError {
             printToStderr("Error: Syntax error\n")
         } catch let ShellError.commandNotFound(command) {
             printToStderr("Error: Command not found: \(command)\n")
