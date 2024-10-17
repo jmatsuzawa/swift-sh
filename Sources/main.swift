@@ -1,7 +1,12 @@
 import Foundation
 
+func printToStderr(_ msg: String) {
+    let msg = msg.data(using: .utf8)!
+    FileHandle.standardError.write(msg)
+}
+
 func prompt() {
-    fputs("swift-sh> ", stderr)
+    printToStderr("swift-sh> ")
 }
 func read() -> String? {
     prompt()
@@ -231,7 +236,7 @@ func run(_ elements: [Element]) throws {
         }
         commands[commands.count - 1].waitUntilExit()
     } catch {
-        fputs("Running Error: \(error)\n", stderr)
+        printToStderr("Running Error: \(error)\n")
     }
 }
 
@@ -249,13 +254,13 @@ func repl() {
             }
             try run(elements)
         } catch ShellError.syntaxError{
-            fputs("Error: Syntax error\n", stderr)
+            printToStderr("Error: Syntax error\n")
         } catch let ShellError.commandNotFound(command) {
-            fputs("Error: Command not found: \(command)\n", stderr)
+            printToStderr("Error: Command not found: \(command)\n")
         } catch let ShellError.fileError(path, description) {
-            fputs("Error: Could not open \(path): \(description)\n", stderr)
+            printToStderr("Error: Could not open \(path): \(description)\n")
         } catch {
-            fputs("Error: \(error)\n", stderr)
+            printToStderr("Error: \(error)\n")
         }
     }
 }
