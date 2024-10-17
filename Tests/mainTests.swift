@@ -10,7 +10,7 @@ import Testing
     ("   cat   <   foo   ", ["cat", "<", "foo"]),
     ("ls\t/tmp", ["ls", "/tmp"]),
 ])
-func TestTokenize(_ input: String, _ expected: [String]) {
+func testTokenize(_ input: String, _ expected: [String]) {
     let actual = tokenize(input)
 
     #expect(actual == expected)

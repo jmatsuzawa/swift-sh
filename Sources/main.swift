@@ -256,9 +256,9 @@ func repl() {
             try run(elements)
         } catch ShellError.syntaxError {
             printToStderr("Error: Syntax error\n")
-        } catch let ShellError.commandNotFound(command) {
+        } catch ShellError.commandNotFound(let command) {
             printToStderr("Error: Command not found: \(command)\n")
-        } catch let ShellError.fileError(path, description) {
+        } catch ShellError.fileError(let path, let description) {
             printToStderr("Error: Could not open \(path): \(description)\n")
         } catch {
             printToStderr("Error: \(error)\n")
