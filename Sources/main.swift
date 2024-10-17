@@ -141,6 +141,48 @@ func createProcess(_ command: String, _ args: [String]) -> Process {
     return process
 }
 
+func isBuiltInCommand(_ command: String) -> Bool {
+    switch command {
+    case "cd", "exit":
+        return true
+    default:
+        return false
+    }
+}
+
+func runCd(_ args: [String]) throws {
+    let path: String
+    if args.count >= 1 {
+        path = args[0]
+    } else {
+        path = ProcessInfo.processInfo.environment["HOME"] ?? "."
+    }
+    if !FileManager.default.changeCurrentDirectoryPath(path) {
+        throw ShellError.fileError(path, "Could not change directory to \(path)")
+    }
+}
+
+func runExit(_ args: [String]) {
+    let status: Int32
+    if args.count >= 1 {
+        status = Int32(args[0]) ?? 0
+    } else {
+        status = 0
+    }
+    exit(status)
+}
+
+func runBuildInCommand(_ command: String, _ args: [String]) throws {
+    switch command {
+    case "cd":
+        try runCd(args)
+    case "exit":
+        runExit(args)
+    default:
+        break // Do nothing
+    }
+}
+
 func run(_ elements: [Element]) throws {
     let paths = (ProcessInfo.processInfo.environment["PATH"] ?? "").split(separator: ":").map(String.init)
 
@@ -153,6 +195,10 @@ func run(_ elements: [Element]) throws {
         let element = elements[i]
         switch element {
         case .command(let command, let args):
+            if isBuiltInCommand(command) {
+                try runBuildInCommand(command, args)
+                return
+            }
             let commandPath = try absolutePath(of: command, in: paths)
             currentCommand = createProcess(commandPath, args)
             if let p = pipe {
