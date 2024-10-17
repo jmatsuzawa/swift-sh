@@ -25,4 +25,9 @@ if [[ $(echo "cat < ${tmpfile}" | .build/debug/swift-sh 2>/dev/null) != "1" ]]; 
 fi
 rm "${tmpfile}"
 
+if [[ $(echo $'cd / \n pwd \n cd /tmp \n pwd' | ./.build/debug/swift-sh 2>/dev/null) != $'/\n/tmp' ]]; then
+    echo "Built-in command cd failed " >&2
+    result=1
+fi
+
 exit "${result}"
