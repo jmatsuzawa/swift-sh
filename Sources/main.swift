@@ -1,5 +1,17 @@
 import Foundation
 
+actor LastStatus {
+    var _status: Int32 = 0
+
+    var status: Int32 { _status }
+
+    func setStatus(status: Int32) {
+        _status = status
+    }
+}
+
+let lastStatus = LastStatus()
+
 func printToStderr(_ msg: String) {
     let msg = msg.data(using: .utf8)!
     FileHandle.standardError.write(msg)
@@ -172,28 +184,28 @@ func runCd(_ args: [String]) throws {
     }
 }
 
-func runExit(_ args: [String]) {
+func runExit(_ args: [String]) async {
     let status: Int32
     if args.count >= 1 {
         status = Int32(args[0]) ?? 0
     } else {
-        status = 0
+        status = await lastStatus.status
     }
     exit(status)
 }
 
-func runBuildInCommand(_ command: String, _ args: [String]) throws {
+func runBuildInCommand(_ command: String, _ args: [String]) async throws {
     switch command {
     case "cd":
         try runCd(args)
     case "exit":
-        runExit(args)
+        await runExit(args)
     default:
         break  // Do nothing
     }
 }
 
-func run(_ elements: [Element]) throws {
+func run(_ elements: [Element]) async throws {
     let paths =
         (ProcessInfo.processInfo.environment["PATH"] ?? "").split(separator: ":").map(String.init)
 
@@ -207,7 +219,7 @@ func run(_ elements: [Element]) throws {
         switch element {
         case .command(let command, let args):
             if isBuiltInCommand(command) {
-                try runBuildInCommand(command, args)
+                try await runBuildInCommand(command, args)
                 return
             }
             let commandPath = try absolutePath(of: command, in: paths)
@@ -240,13 +252,17 @@ func run(_ elements: [Element]) throws {
         for command in commands {
             try command.run()
         }
-        commands[commands.count - 1].waitUntilExit()
+        for command in commands {
+            command.waitUntilExit()
+        }
+        let status = commands[commands.count - 1].terminationStatus
+        await lastStatus.setStatus(status: status)
     } catch {
         printToStderr("Running Error: \(error)\n")
     }
 }
 
-func repl() {
+func repl() async {
     while true {
         let input = read()
         if input == nil {
@@ -258,7 +274,7 @@ func repl() {
             if elements.count == 0 {
                 continue
             }
-            try run(elements)
+            try await run(elements)
         } catch ShellError.syntaxError {
             printToStderr("Error: Syntax error\n")
         } catch ShellError.commandNotFound(let command) {
@@ -271,8 +287,4 @@ func repl() {
     }
 }
 
-func main() {
-    repl()
-}
-
-main()
+await repl()
